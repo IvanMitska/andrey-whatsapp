@@ -3,7 +3,16 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow, noarchive">
 <title>WhatsApp — +66 80 041 5533</title>
+<script>
+(function() {
+  var KEY = 'pinOk:' + "archive", PIN = "4726";
+  var ok = false;
+  try { ok = localStorage.getItem(KEY) === PIN; } catch (e) {}
+  if (!ok) document.documentElement.setAttribute('data-locked', '1');
+})();
+</script>
 <style>
 
 :root {
@@ -39,6 +48,43 @@
   --g-4: linear-gradient(135deg, #ec4899 0%, #be185d 100%);
   --g-5: linear-gradient(135deg, #06b6d4 0%, #0284c7 100%);
   --g-6: linear-gradient(135deg, #14b8a6 0%, #0d9488 100%);
+}
+
+/* ===== PIN gate ===== */
+#pin-gate { display: none; }
+html[data-locked="1"] body > *:not(#pin-gate) { display: none !important; }
+html[data-locked="1"] #pin-gate {
+  display: flex; position: fixed; inset: 0; z-index: 9999;
+  align-items: center; justify-content: center; padding: 24px;
+  background: linear-gradient(160deg, #0b3d36 0%, #06231f 100%);
+}
+.pin-box {
+  width: 100%; max-width: 320px; text-align: center;
+  background: #fff; border-radius: 18px; padding: 28px 22px 24px;
+  box-shadow: 0 18px 50px rgba(0,0,0,0.35);
+  display: flex; flex-direction: column; gap: 10px;
+}
+.pin-lock { font-size: 34px; line-height: 1; }
+.pin-title { font-size: 17px; font-weight: 700; color: #0f2e28; }
+.pin-sub { font-size: 13.5px; color: #6a7782; margin-bottom: 4px; }
+.pin-input {
+  font: inherit; font-size: 22px; letter-spacing: 6px; text-align: center;
+  padding: 12px 10px; border: 1px solid #d3dbd8; border-radius: 12px;
+  background: #f6f8f7; color: #0f2e28; width: 100%;
+}
+.pin-input:focus { outline: 2px solid #008069; outline-offset: 1px; }
+.pin-go {
+  font: inherit; font-weight: 600; font-size: 15px; cursor: pointer;
+  padding: 11px 14px; border: 0; border-radius: 12px;
+  background: #008069; color: #fff;
+}
+.pin-go:hover { background: #026e5b; }
+.pin-err { font-size: 13px; color: #c0392b; }
+.pin-shake .pin-box { animation: pin-shake 0.4s; }
+@keyframes pin-shake {
+  0%, 100% { transform: translateX(0); }
+  20%, 60% { transform: translateX(-8px); }
+  40%, 80% { transform: translateX(8px); }
 }
 
 /* ===== i18n bilingual spans (CSS toggles which lang is visible) ===== */
@@ -756,6 +802,7 @@ body[data-active-tab="docs"] .controls { display: none; }
 </head>
 
 <body data-active-tab="messages">
+<div id="pin-gate"><form class="pin-box" autocomplete="off"><div class="pin-lock" aria-hidden="true">🔒</div><div class="pin-title"><span class="i18n"><span data-l="ru">Доступ по PIN-коду</span><span data-l="th">เข้าใช้งานด้วยรหัส PIN</span></span></div><div class="pin-sub"><span class="i18n"><span data-l="ru">Введите PIN, чтобы открыть архив</span><span data-l="th">กรอกรหัส PIN เพื่อเปิดคลังข้อมูล</span></span></div><input class="pin-input" type="password" inputmode="numeric" autocomplete="off" maxlength="16" aria-label="PIN"><button class="pin-go" type="submit"><span class="i18n"><span data-l="ru">Открыть</span><span data-l="th">เปิด</span></span></button><div class="pin-err" hidden><span class="i18n"><span data-l="ru">Неверный PIN</span><span data-l="th">รหัส PIN ไม่ถูกต้อง</span></span></div></form></div><script>(function(){var KEY="pinOk:"+"archive",PIN="4726";var g=document.getElementById("pin-gate");var f=g.querySelector("form"),i=g.querySelector(".pin-input"),e=g.querySelector(".pin-err");f.addEventListener("submit",function(ev){ev.preventDefault();if(i.value.trim()===PIN){try{localStorage.setItem(KEY,PIN);}catch(x){}document.documentElement.removeAttribute("data-locked");}else{e.hidden=false;i.value="";i.focus();g.classList.add("pin-shake");setTimeout(function(){g.classList.remove("pin-shake");},420);}});if(document.documentElement.hasAttribute("data-locked")){setTimeout(function(){i.focus();},50);}})();</script>
 <aside id="nav-drawer" hidden data-i18n-aria="menu" aria-label="Меню">
 <div class="drawer-h">
 <div class="drawer-title"><span class="i18n"><span data-l="ru">WhatsApp архив</span><span data-l="th">คลัง WhatsApp</span></span></div>
@@ -806,7 +853,7 @@ body[data-active-tab="docs"] .controls { display: none; }
 <main class="chat">
 <div id="empty-state" class="empty-state" hidden><span class="i18n"><span data-l="ru">За выбранный день нет сообщений.</span><span data-l="th">ไม่มีข้อความในวันที่เลือก</span></span></div>
 <div class="date-divider" id="d-2025-10-01" data-date="2025-10-01"><span><span class="i18n"><span data-l="ru">1 октября 2025</span><span data-l="th">1 ตุลาคม 2568</span></span></span></div>
-<div class="system-msg" data-date="2025-10-01">Сообщения и звонки защищены сквозным шифрованием. Прочитать, прослушать или переслать их могут только участники этого чата.</div>
+<div class="system-msg" data-date="2025-10-01">Сообщения и звонки защищены сквозным шифрованием. Прочитать, прослушать или переслать их могут только участники этого чата.<div class="text-tr" lang="th">ข้อความและการโทรได้รับการป้องกันด้วยการเข้ารหัสจากต้นทางถึงปลายทาง เฉพาะผู้เข้าร่วมในการแชทนี้เท่านั้นที่สามารถอ่าน ฟัง หรือส่งต่อได้</div></div>
 <div class="msg msg-left" data-date="2025-10-01"><div class="bubble"><div class="sender" style="color:#1f7a8c">Anna Frank</div><div class="text">Привет, Анна Франк</div><div class="text-tr" lang="th">Error 504 (Server Error)!!1504.That’s an error.There was an error. Please try again later.That’s all we know.</div><div class="time">14:50</div></div></div>
 <div class="msg msg-left" data-date="2025-10-01"><div class="bubble"><div class="sender" style="color:#1f7a8c">Anna Frank</div><div class="text">Юристы</div><div class="text-tr" lang="th">ทนายความ</div><div class="time">14:50</div></div></div>
 <div class="msg msg-left" data-date="2025-10-01"><div class="bubble"><div class="sender" style="color:#1f7a8c">Anna Frank</div><div class="text">Dear K. Printhonom, I would kindly ask you as follows. Considering our very nice friendship and business cooperation, I would like to clarify and update our current position . I do not feel confident enough to understand the Thai Law and regulations, so I hired a Lawer to help me with that. My Lawyer is advising to check all the documents and agreements first and to  talk with you <br>in a friendly manner regarding our future business development. <br>In these regards, I invite you to have a meeting at the Lawyers office, so we can settle all the questions I have. We invite you to come for the meeting to the office in Boat Lagoon, Koh Kaew. Tomorrow 16:00 at the following location</div><div class="text-tr" lang="th">เรียน คุณ พิมพ์ธนอม ขอเรียนถามดังนี้ครับ เมื่อพิจารณาถึงมิตรภาพและความร่วมมือทางธุรกิจที่ดีของเรา ฉันอยากจะชี้แจงและปรับปรุงจุดยืนปัจจุบันของเรา ฉันรู้สึกไม่มั่นใจพอที่จะเข้าใจกฎหมายและข้อบังคับของไทย ดังนั้นฉันจึงจ้างทนายความมาช่วยฉันในเรื่องนั้น ทนายความของฉันแนะนำให้ตรวจสอบเอกสารและข้อตกลงทั้งหมดก่อนแล้วจึงพูดคุยกับคุณ <br>ในลักษณะที่เป็นมิตรต่อการพัฒนาธุรกิจของเราในอนาคต <br>ในเรื่องนี้ ผมขอเชิญคุณมาประชุมที่สำนักงานทนายความ เพื่อที่เราจะได้ตอบคำถามทั้งหมดที่ผมมี ขอเชิญท่านมาประชุมที่สำนักงาน ณ โบ๊ทลากูน เกาะแก้ว พรุ่งนี้ 16.00 น. ณ สถานที่ต่อไปนี้</div><div class="time">15:09</div></div></div>

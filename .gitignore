@@ -9,3 +9,6 @@ __pycache__/
 # Backups of pre-compressed media (kept locally only)
 *.original.mp4
 *.original.mov
+
+# Source screenshots (local only — never deployed)
+photos-wh/

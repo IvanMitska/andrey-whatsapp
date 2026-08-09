@@ -3,7 +3,16 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow, noarchive">
 <title>WhatsApp — Andrey Freedom  beach case</title>
+<script>
+(function() {
+  var KEY = 'pinOk:' + "archive", PIN = "4726";
+  var ok = false;
+  try { ok = localStorage.getItem(KEY) === PIN; } catch (e) {}
+  if (!ok) document.documentElement.setAttribute('data-locked', '1');
+})();
+</script>
 <style>
 
 :root {
@@ -39,6 +48,43 @@
   --g-4: linear-gradient(135deg, #ec4899 0%, #be185d 100%);
   --g-5: linear-gradient(135deg, #06b6d4 0%, #0284c7 100%);
   --g-6: linear-gradient(135deg, #14b8a6 0%, #0d9488 100%);
+}
+
+/* ===== PIN gate ===== */
+#pin-gate { display: none; }
+html[data-locked="1"] body > *:not(#pin-gate) { display: none !important; }
+html[data-locked="1"] #pin-gate {
+  display: flex; position: fixed; inset: 0; z-index: 9999;
+  align-items: center; justify-content: center; padding: 24px;
+  background: linear-gradient(160deg, #0b3d36 0%, #06231f 100%);
+}
+.pin-box {
+  width: 100%; max-width: 320px; text-align: center;
+  background: #fff; border-radius: 18px; padding: 28px 22px 24px;
+  box-shadow: 0 18px 50px rgba(0,0,0,0.35);
+  display: flex; flex-direction: column; gap: 10px;
+}
+.pin-lock { font-size: 34px; line-height: 1; }
+.pin-title { font-size: 17px; font-weight: 700; color: #0f2e28; }
+.pin-sub { font-size: 13.5px; color: #6a7782; margin-bottom: 4px; }
+.pin-input {
+  font: inherit; font-size: 22px; letter-spacing: 6px; text-align: center;
+  padding: 12px 10px; border: 1px solid #d3dbd8; border-radius: 12px;
+  background: #f6f8f7; color: #0f2e28; width: 100%;
+}
+.pin-input:focus { outline: 2px solid #008069; outline-offset: 1px; }
+.pin-go {
+  font: inherit; font-weight: 600; font-size: 15px; cursor: pointer;
+  padding: 11px 14px; border: 0; border-radius: 12px;
+  background: #008069; color: #fff;
+}
+.pin-go:hover { background: #026e5b; }
+.pin-err { font-size: 13px; color: #c0392b; }
+.pin-shake .pin-box { animation: pin-shake 0.4s; }
+@keyframes pin-shake {
+  0%, 100% { transform: translateX(0); }
+  20%, 60% { transform: translateX(-8px); }
+  40%, 80% { transform: translateX(8px); }
 }
 
 /* ===== i18n bilingual spans (CSS toggles which lang is visible) ===== */
@@ -756,6 +802,7 @@ body[data-active-tab="docs"] .controls { display: none; }
 </head>
 
 <body data-active-tab="messages">
+<div id="pin-gate"><form class="pin-box" autocomplete="off"><div class="pin-lock" aria-hidden="true">🔒</div><div class="pin-title"><span class="i18n"><span data-l="ru">Доступ по PIN-коду</span><span data-l="th">เข้าใช้งานด้วยรหัส PIN</span></span></div><div class="pin-sub"><span class="i18n"><span data-l="ru">Введите PIN, чтобы открыть архив</span><span data-l="th">กรอกรหัส PIN เพื่อเปิดคลังข้อมูล</span></span></div><input class="pin-input" type="password" inputmode="numeric" autocomplete="off" maxlength="16" aria-label="PIN"><button class="pin-go" type="submit"><span class="i18n"><span data-l="ru">Открыть</span><span data-l="th">เปิด</span></span></button><div class="pin-err" hidden><span class="i18n"><span data-l="ru">Неверный PIN</span><span data-l="th">รหัส PIN ไม่ถูกต้อง</span></span></div></form></div><script>(function(){var KEY="pinOk:"+"archive",PIN="4726";var g=document.getElementById("pin-gate");var f=g.querySelector("form"),i=g.querySelector(".pin-input"),e=g.querySelector(".pin-err");f.addEventListener("submit",function(ev){ev.preventDefault();if(i.value.trim()===PIN){try{localStorage.setItem(KEY,PIN);}catch(x){}document.documentElement.removeAttribute("data-locked");}else{e.hidden=false;i.value="";i.focus();g.classList.add("pin-shake");setTimeout(function(){g.classList.remove("pin-shake");},420);}});if(document.documentElement.hasAttribute("data-locked")){setTimeout(function(){i.focus();},50);}})();</script>
 <aside id="nav-drawer" hidden data-i18n-aria="menu" aria-label="Меню">
 <div class="drawer-h">
 <div class="drawer-title"><span class="i18n"><span data-l="ru">WhatsApp архив</span><span data-l="th">คลัง WhatsApp</span></span></div>
@@ -829,10 +876,10 @@ body[data-active-tab="docs"] .controls { display: none; }
 <main class="chat">
 <div id="empty-state" class="empty-state" hidden><span class="i18n"><span data-l="ru">За выбранный день нет сообщений.</span><span data-l="th">ไม่มีข้อความในวันที่เลือก</span></span></div>
 <div class="date-divider" id="d-2025-10-08" data-date="2025-10-08"><span><span class="i18n"><span data-l="ru">8 октября 2025</span><span data-l="th">8 ตุลาคม 2568</span></span></span></div>
-<div class="system-msg" data-date="2025-10-08">Сообщения и звонки защищены сквозным шифрованием. Прочитать, прослушать или переслать их могут только участники этого чата.</div>
-<div class="system-msg" data-date="2025-10-08">Алиса адвокат создал(-а) группу “Andrey Freedom  beach case”</div>
-<div class="system-msg" data-date="2025-10-08">Алиса адвокат добавил(-а) вас</div>
-<div class="system-msg" data-date="2025-10-08">Алиса адвокат изменил(-а) картинку группы</div>
+<div class="system-msg" data-date="2025-10-08">Сообщения и звонки защищены сквозным шифрованием. Прочитать, прослушать или переслать их могут только участники этого чата.<div class="text-tr" lang="th">ข้อความและการโทรได้รับการป้องกันด้วยการเข้ารหัสจากต้นทางถึงปลายทาง เฉพาะผู้เข้าร่วมในการแชทนี้เท่านั้นที่สามารถอ่าน ฟัง หรือส่งต่อได้</div></div>
+<div class="system-msg" data-date="2025-10-08">Алиса адвокат создал(-а) группу “Andrey Freedom  beach case”<div class="text-tr" lang="th">ทนายอลิสา ตั้งกลุ่ม “คดีทะเลอันเดรย์ ฟรีดอม”</div></div>
+<div class="system-msg" data-date="2025-10-08">Алиса адвокат добавил(-а) вас<div class="text-tr" lang="th">ทนายอลิสาเพิ่มคุณแล้ว</div></div>
+<div class="system-msg" data-date="2025-10-08">Алиса адвокат изменил(-а) картинку группы<div class="text-tr" lang="th">ทนายอลิสาเปลี่ยนรูปหมู่</div></div>
 <div class="msg msg-left" data-date="2025-10-08"><div class="bubble"><div class="sender" style="color:#1f7a8c">Алиса адвокат</div><div class="text">Добрый День</div><div class="text-tr" lang="th">สวัสดีตอนบ่าย</div><div class="time">11:44</div></div></div>
 <div class="msg msg-right" data-date="2025-10-08"><div class="bubble"><div class="sender" style="color:#06796b">🌏</div><div class="attachment"><a class="img-link" href="WhatsApp%20Chat%20-%20Andrey%20Freedom%20%20beach%20case/00000006-PHOTO-2025-10-08-11-45-44.jpg" target="_blank"><img class="photo" loading="lazy" src="WhatsApp%20Chat%20-%20Andrey%20Freedom%20%20beach%20case/00000006-PHOTO-2025-10-08-11-45-44.jpg" alt=""></a></div><div class="time">11:45</div></div></div>
 <div class="msg msg-right" data-date="2025-10-08"><div class="bubble"><div class="sender" style="color:#06796b">🌏</div><div class="attachment"><a class="img-link" href="WhatsApp%20Chat%20-%20Andrey%20Freedom%20%20beach%20case/00000007-PHOTO-2025-10-08-11-45-44.jpg" target="_blank"><img class="photo" loading="lazy" src="WhatsApp%20Chat%20-%20Andrey%20Freedom%20%20beach%20case/00000007-PHOTO-2025-10-08-11-45-44.jpg" alt=""></a></div><div class="time">11:45</div></div></div>
@@ -1099,7 +1146,7 @@ body[data-active-tab="docs"] .controls { display: none; }
 <div class="msg msg-left" data-date="2025-11-04"><div class="bubble"><div class="sender" style="color:#1f7a8c">Алиса адвокат</div><div class="attachment"><a class="file pdf" href="WhatsApp%20Chat%20-%20Andrey%20Freedom%20%20beach%20case/00000256-flight_certificate_ru.pdf" target="_blank"><span class="file-icon">📄</span><span class="file-name">flight_certificate_ru.pdf</span></a></div><div class="text">flight_certificate_ru.pdf • 1 страница</div><div class="text-tr" lang="th">flight_certificate_ru.pdf • 1 หน้า</div><div class="time">05:50</div></div></div>
 <div class="msg msg-left" data-date="2025-11-04"><div class="bubble"><div class="sender" style="color:#1f7a8c">Алиса адвокат</div><div class="attachment"><a class="img-link" href="WhatsApp%20Chat%20-%20Andrey%20Freedom%20%20beach%20case/00000257-PHOTO-2025-11-04-05-50-12.jpg" target="_blank"><img class="photo" loading="lazy" src="WhatsApp%20Chat%20-%20Andrey%20Freedom%20%20beach%20case/00000257-PHOTO-2025-11-04-05-50-12.jpg" alt=""></a></div><div class="time">05:50</div></div></div>
 <div class="msg msg-left" data-date="2025-11-04"><div class="bubble"><div class="sender" style="color:#1f7a8c">Алиса адвокат</div><div class="text">Добрый  день ! Очень важно вам приехать до 17 числа, потому что будем заседание в суде и нам нужно дать показания, мы не можем еще раз продлять с 17 по 21</div><div class="text-tr" lang="th">สวัสดีตอนบ่าย ! เป็นสิ่งสำคัญมากสำหรับคุณที่จะต้องมาถึงก่อนวันที่ 17 เนื่องจากเราจะมีการพิจารณาคดีในศาลและเราจำเป็นต้องให้การเป็นพยาน เราไม่สามารถขยายเวลาออกไปอีกจากวันที่ 17 เป็น 21</div><div class="time">10:36</div></div></div>
-<div class="system-msg" data-date="2025-11-04">Вы включили расширенную защиту конфиденциальности в чате. В этом чате никто не может автоматически сохранять медиафайлы, экспортировать историю, задавать вопросы Meta AI или формировать сводки непрочитанных сообщений.</div>
+<div class="system-msg" data-date="2025-11-04">Вы включили расширенную защиту конфиденциальности в чате. В этом чате никто не может автоматически сохранять медиафайлы, экспортировать историю, задавать вопросы Meta AI или формировать сводки непрочитанных сообщений.<div class="text-tr" lang="th">คุณได้เปิดใช้งานการป้องกันความเป็นส่วนตัวของการแชทขั้นสูงแล้ว ในการแชทนี้ ไม่มีใครสามารถบันทึกสื่อ ส่งออกประวัติ ถามคำถาม Meta AI หรือสร้างสรุปข้อความที่ยังไม่ได้อ่านได้โดยอัตโนมัติ</div></div>
 <div class="date-divider" id="d-2025-11-09" data-date="2025-11-09"><span><span class="i18n"><span data-l="ru">9 ноября 2025</span><span data-l="th">9 พฤศจิกายน 2568</span></span></span></div>
 <div class="msg msg-left" data-date="2025-11-09"><div class="bubble"><div class="sender" style="color:#1f7a8c">Алиса адвокат</div><div class="text">Good morning, khun Toon. Vera, wife of Andrey - arrive back to Phuket. Andrey is still in Russia on his medication treatment after big stress, and we are waiting his confirmation that he can fly back. Kindly provide for Vera day and time, when you can finish with her car transfer 🙏 next week</div><div class="text-tr" lang="th">สวัสดียามเช้าครับคุณตูน วีร่า ภรรยาของอันเดรย์ - เดินทางกลับภูเก็ต Andrey ยังคงอยู่ในรัสเซียเพื่อเข้ารับการรักษาด้วยยาหลังจากเครียดอย่างหนัก และเรากำลังรอการยืนยันว่าเขาจะบินกลับได้ กรุณาจัดเตรียมวันและเวลาให้วีร่า เมื่อคุณสามารถโอนรถของเธอเสร็จเรียบร้อย 🙏 สัปดาห์หน้า</div><div class="time">08:11</div></div></div>
 <div class="msg msg-left" data-date="2025-11-09"><div class="bubble"><div class="sender" style="color:#2d8659">Toonii</div><div class="text">Good morning</div><div class="text-tr" lang="th">สวัสดีตอนเช้า</div><div class="time">08:16</div></div></div>
@@ -1164,7 +1211,7 @@ body[data-active-tab="docs"] .controls { display: none; }
 <div class="msg msg-right" data-date="2025-11-28"><div class="bubble"><div class="sender" style="color:#06796b">🌏</div><div class="text">Вы удалили данное сообщение.</div><div class="text-tr" lang="th">คุณได้ลบข้อความนี้แล้ว</div><div class="time">23:33</div></div></div>
 <div class="msg msg-right" data-date="2025-11-28"><div class="bubble"><div class="sender" style="color:#06796b">🌏</div><div class="attachment"><a class="file pdf" href="WhatsApp%20Chat%20-%20Andrey%20Freedom%20%20beach%20case/00000318-2025-11-28_001.pdf" target="_blank"><span class="file-icon">📄</span><span class="file-name">2025-11-28_001.pdf</span></a></div><div class="text">2025-11-28_001.pdf • 3 страницы</div><div class="text-tr" lang="th">2025-11-28_001.pdf • 3 หน้า</div><div class="time">23:37</div></div></div>
 <div class="date-divider" id="d-2026-03-27" data-date="2026-03-27"><span><span class="i18n"><span data-l="ru">27 марта 2026</span><span data-l="th">27 มีนาคม 2569</span></span></span></div>
-<div class="system-msg" data-date="2026-03-27">~ 🌏 присоединился(-ась) по ссылке на группу.</div>
+<div class="system-msg" data-date="2026-03-27">~ 🌏 присоединился(-ась) по ссылке на группу.<div class="text-tr" lang="th">~🌏 เข้าร่วมผ่านลิงก์เข้ากลุ่ม</div></div>
 <div class="msg msg-left" data-date="2026-03-27"><div class="bubble"><div class="sender" style="color:#1f7a8c">Алиса адвокат</div><div class="text">Доброе утро, Андрей</div><div class="text-tr" lang="th">สวัสดีตอนเช้าอันเดรย์</div><div class="time">06:34</div></div></div>
 <div class="msg msg-left" data-date="2026-03-27"><div class="bubble"><div class="sender" style="color:#2d8659">Toonii</div><div class="attachment"><a class="img-link" href="WhatsApp%20Chat%20-%20Andrey%20Freedom%20%20beach%20case/00000322-PHOTO-2026-03-27-13-39-47.jpg" target="_blank"><img class="photo" loading="lazy" src="WhatsApp%20Chat%20-%20Andrey%20Freedom%20%20beach%20case/00000322-PHOTO-2026-03-27-13-39-47.jpg" alt=""></a></div><div class="time">13:39</div></div></div>
 <div class="msg msg-left" data-date="2026-03-27"><div class="bubble"><div class="sender" style="color:#2d8659">Toonii</div><div class="attachment"><a class="img-link" href="WhatsApp%20Chat%20-%20Andrey%20Freedom%20%20beach%20case/00000323-PHOTO-2026-03-27-13-39-48.jpg" target="_blank"><img class="photo" loading="lazy" src="WhatsApp%20Chat%20-%20Andrey%20Freedom%20%20beach%20case/00000323-PHOTO-2026-03-27-13-39-48.jpg" alt=""></a></div><div class="time">13:39</div></div></div>
@@ -1186,7 +1233,7 @@ body[data-active-tab="docs"] .controls { display: none; }
 <div class="msg msg-right" data-date="2026-03-27"><div class="bubble"><div class="sender" style="color:#06796b">🌏</div><div class="text">Также прошу представить копии договоров подписанные между мной и Паринтоном, которые как Вы сказали хранятся в отделе полиции.<br>Оригиналы изымать из полицейского участка не надо. Пришлите копии этих договоров. <br>А также все выше перечисленные документы. Пока этого достаточно.<br>Спасибо</div><div class="text-tr" lang="th">ฉันขอให้คุณส่งสำเนาข้อตกลงที่ลงนามระหว่างฉันกับปารินตันซึ่งอย่างที่คุณบอกจะเก็บไว้ที่กรมตำรวจ<br>ไม่จำเป็นต้องยึดต้นฉบับจากสถานีตำรวจ ส่งสำเนาข้อตกลงเหล่านี้ <br>และเอกสารข้างต้นทั้งหมดด้วย นั่นก็เพียงพอแล้วสำหรับตอนนี้<br>ขอบคุณ</div><div class="time">18:53</div></div></div>
 <div class="msg msg-right" data-date="2026-03-27"><div class="bubble"><div class="sender" style="color:#06796b">🌏</div><div class="text">I also ask you to submit copies of the contracts signed between me and Parinton, which, as you said, are kept in the police department.<br><br>You don&#x27;t have to take the originals from the police station. Send copies of these contracts.<br><br>As well as all the documents listed above. That&#x27;s enough for now.<br><br>Thank you</div><div class="text-tr" lang="th">ฉันขอให้คุณส่งสำเนาสัญญาที่ลงนามระหว่างฉันกับปารินตันซึ่งอย่างที่คุณบอกจะเก็บไว้ในกรมตำรวจ<br><br>ไม่ต้องนำต้นฉบับมาจากโรงพัก ส่งสำเนาสัญญาเหล่านี้<br><br>ตลอดจนเอกสารทั้งหมดที่ระบุไว้ข้างต้น นั่นก็เพียงพอแล้วสำหรับตอนนี้<br><br>ขอบคุณ</div><div class="time">18:54</div></div></div>
 <div class="date-divider" id="d-2026-04-26" data-date="2026-04-26"><span><span class="i18n"><span data-l="ru">26 апреля 2026</span><span data-l="th">26 เมษายน 2569</span></span></span></div>
-<div class="system-msg" data-date="2026-04-26">Вы отключили расширенную защиту конфиденциальности в чате.</div>
+<div class="system-msg" data-date="2026-04-26">Вы отключили расширенную защиту конфиденциальности в чате.<div class="text-tr" lang="th">คุณได้ปิดใช้งานการป้องกันความเป็นส่วนตัวของการแชทขั้นสูง</div></div>
 </main></div>
 <div data-tab-content="media" hidden>
 <div class="media-wrap">

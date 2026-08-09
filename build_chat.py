@@ -18,6 +18,15 @@ CHAT_PREFIXES = (
 )
 ME_NAMES = {"🌏", "Андрей"}  # any of these is rendered on right as "me"
 
+# ---------------------------------------------------------------- access control
+# Slugs listed here get their own standalone page: no nav drawer, no link back to
+# the hub, and no card on index.html. Sharing such a link exposes that chat only.
+PRIVATE_CHATS = {"joseph-creative-aluminium"}
+
+# PIN codes (client-side gate — see README). Change the values here and rebuild.
+ARCHIVE_PIN = "4726"                              # index.html + all public chats
+CHAT_PINS = {"joseph-creative-aluminium": "8351"}  # per-chat override
+
 LRM = "‎"
 
 # iOS:     [9/3/68, 13:41:40] ~PARINTON: text  (Buddhist year, brackets, seconds)
@@ -70,6 +79,12 @@ I18N_RU = {
     "select_chat_hint": "Выберите чат для просмотра",
     "lang_label": "Язык",
     "more": "ещё",
+    "pin_title": "Доступ по PIN-коду",
+    "pin_hint": "Введите PIN, чтобы открыть архив",
+    "pin_hint_chat": "Введите PIN, чтобы открыть переписку",
+    "pin_submit": "Открыть",
+    "pin_error": "Неверный PIN",
+    "pin_lock": "Закрыть доступ",
 }
 
 I18N_TH = {
@@ -101,6 +116,12 @@ I18N_TH = {
     "select_chat_hint": "เลือกแชทเพื่อดู",
     "lang_label": "ภาษา",
     "more": "อีก",
+    "pin_title": "เข้าใช้งานด้วยรหัส PIN",
+    "pin_hint": "กรอกรหัส PIN เพื่อเปิดคลังข้อมูล",
+    "pin_hint_chat": "กรอกรหัส PIN เพื่อเปิดบทสนทนา",
+    "pin_submit": "เปิด",
+    "pin_error": "รหัส PIN ไม่ถูกต้อง",
+    "pin_lock": "ล็อกอีกครั้ง",
 }
 
 
@@ -121,6 +142,7 @@ def i18n_text(ru: str, th: str) -> str:
             f'</span>')
 
 SYSTEM_PATTERNS = (
+    "ⓘ",  # archivist note injected into a hand-built _chat.txt
     "сквозным шифрованием",
     "создал(-а) группу",
     "добавил(-а) вас",
@@ -644,8 +666,12 @@ def render_messages_section(chat: dict, data: dict) -> str:
 
         if is_sys:
             sys_text = text_only or html.escape(m["sender"])
+            tr = translations.get(text_hash(sys_text))
+            tr_html = (f'<div class="text-tr" lang="th">{render_text(tr)}</div>'
+                       if tr else "")
             out.append(
-                f'<div class="system-msg" data-date="{dkey}">{render_text(sys_text)}</div>'
+                f'<div class="system-msg" data-date="{dkey}">'
+                f'{render_text(sys_text)}{tr_html}</div>'
             )
             continue
 
@@ -786,17 +812,28 @@ def render_chat_page(chat: dict, all_chats: list):
         ym = k[:7]
         months.setdefault(ym, []).append(k)
 
-    out = [build_head(f"WhatsApp — {title}")]
+    slug = chat["out"][:-5]
+    is_private = slug in PRIVATE_CHATS
+    scope, pin = pin_for(slug)
+
+    out = [build_head(f"WhatsApp — {title}", scope, pin)]
     out.append('<body data-active-tab="messages">')
-    out.append(render_drawer(chat, all_chats))
+    out.append(render_pin_gate(scope, pin,
+                               "pin_hint_chat" if is_private else "pin_hint"))
+    # A private chat is standalone: no drawer, no link back to the hub, so the
+    # link can be shared without exposing the rest of the archive.
+    if not is_private:
+        out.append(render_drawer(chat, all_chats))
 
     out.append('<header class="chat-header"><div class="header-row">')
-    out.append('<button id="navToggle" class="icon-btn menu-btn" '
-               'data-i18n-aria="open_menu" data-i18n-title="menu" '
-               'aria-label="Открыть меню" title="Меню">☰</button>')
+    if not is_private:
+        out.append('<button id="navToggle" class="icon-btn menu-btn" '
+                   'data-i18n-aria="open_menu" data-i18n-title="menu" '
+                   'aria-label="Открыть меню" title="Меню">☰</button>')
     out.append(render_avatar(chat, size_cls="avatar-header"))
     out.append('<div class="title-block">')
-    out.append(f'<a class="back-link" href="index.html">{i18n("back_all")}</a>')
+    if not is_private:
+        out.append(f'<a class="back-link" href="index.html">{i18n("back_all")}</a>')
     out.append(f'<div class="title">{html.escape(title)}</div>')
     out.append(
         f'<div class="sub">{render_subtitle(chat)} · '
@@ -853,8 +890,9 @@ def build_index(chats):
     total_media = sum(len(c["data"]["media_items"]) for c in chats)
     total_days = sum(len(c["data"]["sorted_days"]) for c in chats)
 
-    out = [build_head("WhatsApp архив")]
+    out = [build_head("WhatsApp архив", "archive", ARCHIVE_PIN)]
     out.append('<body data-page="hub">')
+    out.append(render_pin_gate("archive", ARCHIVE_PIN))
     out.append('<div class="hub">')
     out.append('<header class="hub-header">')
     out.append(f'<div class="hub-lang">{render_lang_switch()}</div>')
@@ -902,18 +940,76 @@ def build_index(chats):
     (ROOT / "index.html").write_text("\n".join(out), encoding="utf-8")
 
 
-def build_head(title: str) -> str:
+def build_head(title: str, pin_scope: str, pin: str) -> str:
+    """Page <head>. The inline gate script runs before <body> paints, so a
+    locked page never flashes its content."""
+    import json
+    scope_js = json.dumps(pin_scope)
+    pin_js = json.dumps(pin)
     return f"""<!doctype html>
 <html lang="ru">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow, noarchive">
 <title>{html.escape(title)}</title>
+<script>
+(function() {{
+  var KEY = 'pinOk:' + {scope_js}, PIN = {pin_js};
+  var ok = false;
+  try {{ ok = localStorage.getItem(KEY) === PIN; }} catch (e) {{}}
+  if (!ok) document.documentElement.setAttribute('data-locked', '1');
+}})();
+</script>
 <style>
 {CSS}
 </style>
 </head>
 """
+
+
+def render_pin_gate(pin_scope: str, pin: str, hint_key: str = "pin_hint") -> str:
+    """Overlay asking for the PIN. Must be a direct child of <body>."""
+    import json
+    return (
+        '<div id="pin-gate">'
+        '<form class="pin-box" autocomplete="off">'
+        '<div class="pin-lock" aria-hidden="true">🔒</div>'
+        f'<div class="pin-title">{i18n("pin_title")}</div>'
+        f'<div class="pin-sub">{i18n(hint_key)}</div>'
+        '<input class="pin-input" type="password" inputmode="numeric" '
+        'autocomplete="off" maxlength="16" aria-label="PIN">'
+        f'<button class="pin-go" type="submit">{i18n("pin_submit")}</button>'
+        f'<div class="pin-err" hidden>{i18n("pin_error")}</div>'
+        '</form>'
+        '</div>'
+        '<script>'
+        '(function(){'
+        f'var KEY="pinOk:"+{json.dumps(pin_scope)},PIN={json.dumps(pin)};'
+        'var g=document.getElementById("pin-gate");'
+        'var f=g.querySelector("form"),i=g.querySelector(".pin-input"),'
+        'e=g.querySelector(".pin-err");'
+        'f.addEventListener("submit",function(ev){'
+        'ev.preventDefault();'
+        'if(i.value.trim()===PIN){'
+        'try{localStorage.setItem(KEY,PIN);}catch(x){}'
+        'document.documentElement.removeAttribute("data-locked");'
+        '}else{e.hidden=false;i.value="";i.focus();'
+        'g.classList.add("pin-shake");'
+        'setTimeout(function(){g.classList.remove("pin-shake");},420);}'
+        '});'
+        'if(document.documentElement.hasAttribute("data-locked")){'
+        'setTimeout(function(){i.focus();},50);}'
+        '})();'
+        '</script>'
+    )
+
+
+def pin_for(slug: str) -> tuple:
+    """(scope, pin) for a chat slug — private chats get their own PIN."""
+    if slug in CHAT_PINS:
+        return slug, CHAT_PINS[slug]
+    return "archive", ARCHIVE_PIN
 
 
 def i18n_js_payload() -> str:
@@ -997,6 +1093,43 @@ CSS = """
   --g-4: linear-gradient(135deg, #ec4899 0%, #be185d 100%);
   --g-5: linear-gradient(135deg, #06b6d4 0%, #0284c7 100%);
   --g-6: linear-gradient(135deg, #14b8a6 0%, #0d9488 100%);
+}
+
+/* ===== PIN gate ===== */
+#pin-gate { display: none; }
+html[data-locked="1"] body > *:not(#pin-gate) { display: none !important; }
+html[data-locked="1"] #pin-gate {
+  display: flex; position: fixed; inset: 0; z-index: 9999;
+  align-items: center; justify-content: center; padding: 24px;
+  background: linear-gradient(160deg, #0b3d36 0%, #06231f 100%);
+}
+.pin-box {
+  width: 100%; max-width: 320px; text-align: center;
+  background: #fff; border-radius: 18px; padding: 28px 22px 24px;
+  box-shadow: 0 18px 50px rgba(0,0,0,0.35);
+  display: flex; flex-direction: column; gap: 10px;
+}
+.pin-lock { font-size: 34px; line-height: 1; }
+.pin-title { font-size: 17px; font-weight: 700; color: #0f2e28; }
+.pin-sub { font-size: 13.5px; color: #6a7782; margin-bottom: 4px; }
+.pin-input {
+  font: inherit; font-size: 22px; letter-spacing: 6px; text-align: center;
+  padding: 12px 10px; border: 1px solid #d3dbd8; border-radius: 12px;
+  background: #f6f8f7; color: #0f2e28; width: 100%;
+}
+.pin-input:focus { outline: 2px solid #008069; outline-offset: 1px; }
+.pin-go {
+  font: inherit; font-weight: 600; font-size: 15px; cursor: pointer;
+  padding: 11px 14px; border: 0; border-radius: 12px;
+  background: #008069; color: #fff;
+}
+.pin-go:hover { background: #026e5b; }
+.pin-err { font-size: 13px; color: #c0392b; }
+.pin-shake .pin-box { animation: pin-shake 0.4s; }
+@keyframes pin-shake {
+  0%, 100% { transform: translateX(0); }
+  20%, 60% { transform: translateX(-8px); }
+  40%, 80% { transform: translateX(8px); }
 }
 
 /* ===== i18n bilingual spans (CSS toggles which lang is visible) ===== */
@@ -1840,16 +1973,22 @@ def main():
         chat["data"] = collect_data(chat)
     # Sort by message count desc → consistent nav drawer + index card order
     chats_sorted = sorted(chats, key=lambda c: c["data"]["msg_count"], reverse=True)
+    # Private chats never appear in the hub or in any nav drawer
+    public = [c for c in chats_sorted if c["out"][:-5] not in PRIVATE_CHATS]
     # Second pass: render pages with full nav
     for chat in chats_sorted:
-        render_chat_page(chat, chats_sorted)
+        render_chat_page(chat, public)
+        slug = chat["out"][:-5]
         kind = "group" if chat["is_group"] else "personal"
+        vis = "PRIVATE" if slug in PRIVATE_CHATS else kind
         d = chat["data"]
-        print(f"  → {chat['out']:30s} [{kind}] "
+        print(f"  → {chat['out']:34s} [{vis}] "
               f"{d['msg_count']} msgs, {len(d['sorted_days'])} days, "
-              f"{len(d['media_items'])} media, {len(d['doc_items'])} docs")
-    build_index(chats_sorted)
-    print(f"  → index.html: {len(chats_sorted)} chats")
+              f"{len(d['media_items'])} media, {len(d['doc_items'])} docs, "
+              f"pin={pin_for(slug)[1]}")
+    build_index(public)
+    print(f"  → index.html: {len(public)} chats (pin={ARCHIVE_PIN}), "
+          f"{len(chats_sorted) - len(public)} hidden")
 
 
 if __name__ == "__main__":
